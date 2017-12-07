@@ -1,25 +1,25 @@
-import { self } from "./self";
-import { Layer } from "./layer";
-import { Neuron } from "./neuron";
-import { SaveOutput } from "./saveOutput";
+import { Layer } from "./Layer";
+import { Neuron } from "./Neuron";
+import { ISaveOutput } from "./ISaveOutput";
+import { Neuroevolution } from "./Neuroevolution";
 
 /*NEURAL NETWORK**************************************************************/
 export class Network {
     layers: Layer[] = [];
 
-	/**
-	 * Generate the Network layers.
-	 *
-	 * @param {input} Number of Neurons in Input layer.
-	 * @param {hidden} Number of Neurons per Hidden layer.
-	 * @param {output} Number of Neurons in Output layer.
-	 * @return void
-	 */
-    perceptronGeneration(input: number, hiddens: number[], output: number) {
+    /**
+     * Generate the Network layers.
+     *
+     * @param {input} Number of Neurons in Input layer.
+     * @param {hidden} Number of Neurons per Hidden layer.
+     * @param {output} Number of Neurons in Output layer.
+     * @return void
+     */
+    perceptronGeneration(input: number, hiddens: number[], output: number, self: Neuroevolution): void {
         let index = 0;
         let previousNeurons = 0;
         let layer = new Layer(index);
-        layer.populate(input, previousNeurons); // Number of Inputs will be set to
+        layer.populate(input, previousNeurons, self); // number of Inputs will be set to
         // 0 since it is an input layer.
         previousNeurons = input;  // number of input is size of previous layer.
         this.layers.push(layer);
@@ -27,14 +27,14 @@ export class Network {
         for (let i in hiddens) {
             // Repeat same process as first layer for each hidden layer.
             let layer = new Layer(index);
-            layer.populate(hiddens[i], previousNeurons);
+            layer.populate(hiddens[i], previousNeurons, self);
             previousNeurons = hiddens[i];
             this.layers.push(layer);
             index++;
         }
 
         layer = new Layer(index);
-        layer.populate(output, previousNeurons);  // Number of input is equal to
+        layer.populate(output, previousNeurons, self);  // Number of input is equal to
         // the size of the last hidden
         // layer.
         this.layers.push(layer);
@@ -47,7 +47,7 @@ export class Network {
 	 *
 	 * @return Network data.
 	 */
-    getSave(): SaveOutput {
+    getSave(): ISaveOutput {
         const datas = {
             neurons: [] as number[], // Number of Neurons per layer.
             weights: [] as number[]  // Weights of each Neuron's inputs.
@@ -72,7 +72,7 @@ export class Network {
 	 * @param {save} Copy of network data (neurons and weights).
 	 * @return void
 	 */
-    setSave(save: SaveOutput) {
+    setSave(save: ISaveOutput, self: Neuroevolution) {
         let previousNeurons = 0,
             index = 0,
             indexWeights = 0;
@@ -80,7 +80,7 @@ export class Network {
         for (let i in save.neurons) {
             // Create and populate layers.
             const layer = new Layer(index);
-            layer.populate(save.neurons[i], previousNeurons);
+            layer.populate(save.neurons[i], previousNeurons, self);
             for (let j in layer.neurons) {
                 for (let k in layer.neurons[j].weights) {
                     // Apply neurons weights to each Neuron.
@@ -101,7 +101,7 @@ export class Network {
 	 * @param {inputs} Set of inputs.
 	 * @return Network output.
 	 */
-    compute(inputs: number[]) {
+    compute(inputs: number[], self: Neuroevolution) {
         // Set the value of each Neuron in the input layer.
         for (let i in inputs) {
             if (this.layers[0] && this.layers[0].neurons[i]) {
@@ -122,7 +122,7 @@ export class Network {
                 }
 
                 // Compute the activation of the Neuron.
-                this.layers[i].neurons[j].value = self.options.activation(sum);
+                this.layers[i].neurons[j].value = self.activation(sum);
             }
             prevLayer = this.layers[i];
         }

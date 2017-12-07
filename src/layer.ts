@@ -1,4 +1,5 @@
-import { Neuron } from "./neuron";
+import { Neuron } from "./Neuron";
+import { Neuroevolution } from "./Neuroevolution";
 
 /*LAYER***********************************************************************/
 export class Layer {
@@ -24,11 +25,11 @@ export class Layer {
 	 * @param {nbInputs} Number of inputs.
 	 * @return void
 	 */
-	populate(nbNeurons: number, nbInputs: number) {
+	populate(nbNeurons: number, nbInputs: number, self: Neuroevolution) {
 		this.neurons = [];
 		for (let i = 0; i < nbNeurons; i++) {
 			const n = new Neuron();
-			n.populate(nbInputs);
+			n.populate(nbInputs, self);
 			this.neurons.push(n);
 		}
 	}

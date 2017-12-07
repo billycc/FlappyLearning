@@ -1,9 +1,9 @@
-import { self } from "./self";
-import { Generation } from "./generation";
-import { Network } from "./network";
-import { Genome } from "./genome";
-import { GenerationOutput } from "./generationOutput";
-import { SaveOutput } from "./saveOutput";
+import { Generation } from "./Generation";
+import { Network } from "./Network";
+import { Genome } from "./Genome";
+import { IGenerationOutput } from "./IGenerationOutput";
+import { ISaveOutput } from "./ISaveOutput";
+import { Neuroevolution } from "./Neuroevolution";
 
 
 /*GENERATIONS*****************************************************************/
@@ -30,16 +30,16 @@ export class Generations {
 	 * @param {output} Output layer.
 	 * @return First Generation.
 	 */
-    firstGeneration(): SaveOutput[] { // (input, hiddens, output){
+    firstGeneration(self: Neuroevolution): ISaveOutput[] { // (input, hiddens, output){
         // FIXME input, hiddens, output unused.
 
         const out = [];
-        for (let  i = 0; i < self.options.population; i++) {
+        for (let i = 0; i < self.options.population; i++) {
             // Generate the Network and save it.
-            const  nn = new Network();
+            const nn = new Network();
             nn.perceptronGeneration(self.options.network[0],
                 self.options.network[1],
-                self.options.network[2]);
+                self.options.network[2], self);
             out.push(nn.getSave());
         }
 
@@ -52,14 +52,14 @@ export class Generations {
 	 *
 	 * @return Next Generation.
 	 */
-    nextGeneration(): SaveOutput[] {
+    nextGeneration(self: Neuroevolution): ISaveOutput[] {
         if (this.generations.length === 0) {
             // Need to create first generation.
             throw Error("generations.length === 0");
         }
 
         const gen = this.generations[this.generations.length - 1]
-            .generateNextGeneration();
+            .generateNextGeneration(self);
         this.generations.push(new Generation());
         return gen;
     }
@@ -70,11 +70,11 @@ export class Generations {
 	 * @param {genome}
 	 * @return False if no Generations to add to.
 	 */
-    addGenome(genome: Genome) {
+    addGenome(genome: Genome, self: Neuroevolution) {
         // Can't add to a Generation if there are no Generations.
         if (this.generations.length == 0) return false;
 
         // FIXME addGenome returns void.
-        return this.generations[this.generations.length - 1].addGenome(genome);
+        return this.generations[this.generations.length - 1].addGenome(genome, self);
     }
 }

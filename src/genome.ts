@@ -1,4 +1,4 @@
-import { SaveOutput } from "./saveOutput";
+import { ISaveOutput } from "./ISaveOutput";
 
 /*GENOME**********************************************************************/
 /**
@@ -12,7 +12,7 @@ import { SaveOutput } from "./saveOutput";
  * @param {network}
  */
 export class Genome {
-	constructor(public score: number, public network: SaveOutput) {
+	constructor(public score: number, public network: ISaveOutput) {
 		this.score = score || 0;
 		this.network = network || null;
 	}

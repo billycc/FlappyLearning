@@ -1,17 +1,11 @@
-import { self } from "./self";
-import { Genome } from "./genome";
-import { SaveOutput } from "./saveOutput";
+import { Genome } from "./Genome";
+import { ISaveOutput } from "./ISaveOutput";
+import { Neuroevolution } from "./Neuroevolution";
 
 /*GENERATION******************************************************************/
 export class Generation {
     genomes: Genome[] = [];
-	/**
-	 * Generation class.
-	 *
-	 * Composed of a set of Genomes.
-	 *
-	 * @constructor
-	 */
+
 
 	/**
 	 * Add a genome to the generation.
@@ -19,17 +13,16 @@ export class Generation {
 	 * @param {genome} Genome to add.
 	 * @return void.
 	 */
-    addGenome(genome: Genome) {
-        // Locate position to insert Genome into.
-        // The gnomes should remain sorted.
-        let i;
+    addGenome(genome: Genome, self: Neuroevolution) {
+        // locate position to insert Genome into. The gnomes should remain sorted.
+        let i: number;
         for (i = 0; i < this.genomes.length; i++) {
-            // Sort in descending order.
+            // sort in descending order.
             if (self.options.scoreSort < 0) {
                 if (genome.score > this.genomes[i].score) {
                     break;
                 }
-                // Sort in ascending order.
+                // sort in ascending order.
             } else {
                 if (genome.score < this.genomes[i].score) {
                     break;
@@ -38,7 +31,7 @@ export class Generation {
 
         }
 
-        // Insert genome into correct position.
+        // insert genome into correct position.
         this.genomes.splice(i, 0, genome);
     }
 
@@ -49,15 +42,15 @@ export class Generation {
 	 * @param {g2} Genome 2.
 	 * @param {nbChilds} Number of offspring (children).
 	 */
-    breed(g1: Genome, g2: Genome, nbChilds: number) {
-        const datas = [];
+    breed(g1: Genome, g2: Genome, nbChilds: number, self: Neuroevolution) {
+        const datas: Genome[] = [];
         for (let nb = 0; nb < nbChilds; nb++) {
             // Deep clone of genome 1.
             const data = JSON.parse(JSON.stringify(g1));
             for (let i in g2.network.weights) {
-                // Genetic crossover
+                // genetic crossover
                 // 0.5 is the crossover factor.
-                // FIXME Really should be a predefined constant.
+                // FIXME really should be a predefined constant.
                 if (Math.random() <= 0.5) {
                     data.network.weights[i] = g2.network.weights[i];
                 }
@@ -83,8 +76,8 @@ export class Generation {
 	 *
 	 * @return Next generation data array.
 	 */
-    generateNextGeneration() {
-        const nexts: SaveOutput[] = [];
+    generateNextGeneration(self: Neuroevolution) {
+        const nexts: ISaveOutput[] = [];
 
         for (let i = 0; i < Math.round(self.options.elitism * self.options.population); i++) {
             if (nexts.length < self.options.population) {
@@ -96,7 +89,7 @@ export class Generation {
         for (let i = 0; i < Math.round(self.options.randomBehaviour * self.options.population); i++) {
             const n = JSON.parse(JSON.stringify(this.genomes[0].network));
             for (let k in n.weights) {
-                n.weights[k] = self.options.randomClamped();
+                n.weights[k] = self.randomClamped();
             }
             if (nexts.length < self.options.population) {
                 nexts.push(n);
@@ -108,7 +101,7 @@ export class Generation {
             for (let i = 0; i < max; i++) {
                 // Create the children and push them to the nexts array.
                 const childs = this.breed(this.genomes[i], this.genomes[max],
-                    (self.options.nbChild > 0 ? self.options.nbChild : 1));
+                    (self.options.nbChild > 0 ? self.options.nbChild : 1), self);
                 for (let c in childs) {
                     nexts.push(childs[c].network);
                     if (nexts.length >= self.options.population) {

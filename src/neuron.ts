@@ -1,4 +1,5 @@
-import { self } from "./self";
+import { Neuroevolution } from "./Neuroevolution";
+
 /*NEURON**********************************************************************/
 export class Neuron {
 	value: number;
@@ -19,10 +20,10 @@ export class Neuron {
 	 * @param {nb} Number of neuron weights (number of inputs).
 	 * @return void
 	 */
-	populate(nb: number) {
+	populate(nb: number, self: Neuroevolution) {
 		this.weights = [];
-		for (let i = 0; i < nb; i++) {
-			this.weights.push(self.options.randomClamped());
+		for (let i = 0; i < nb; i ++) {
+			this.weights.push(self.randomClamped());
 		}
 	}
 }

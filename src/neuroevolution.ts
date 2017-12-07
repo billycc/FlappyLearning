@@ -1,25 +1,14 @@
 import { merge } from "lodash";
-import { Network } from "./network";
-import { Genome } from "./genome";
-import { Generations } from "./generations";
-import { SaveOutput } from "./saveOutput";
+import { Network } from "./Network";
+import { Genome } from "./Genome";
+import { Generations } from "./Generations";
+import { ISaveOutput } from "./ISaveOutput";
+import { IOptions } from "./IOptions";
 
 // Declaration of module parameters (options) and default values
-export interface FlappyOptions {
-    network: [number, number[], number];
-    population: number;
-    elitism: number;
-    randomBehaviour: number;
-    mutationRate: number;
-    mutationRange: number;
-    historic: number;
-    lowHistoric: boolean;
-    scoreSort: -1 | 1;
-    nbChild: number;
-}
 
 export class Neuroevolution {
-    static readonly defaultOptions: FlappyOptions = {
+    static readonly defaultOptions: IOptions = {
         // various factors and parameters (along with default values).
         network: [1, [1], 1],    // Perceptron network structure (1 hidden layer).
         population: 50,          // Population by generation.
@@ -35,7 +24,7 @@ export class Neuroevolution {
 
     };
 
-    constructor(public options: FlappyOptions) {
+    constructor(public options: IOptions) {
         this.options = merge({}, Neuroevolution.defaultOptions, options);
     }
 
@@ -45,7 +34,7 @@ export class Neuroevolution {
      * @param {options} An object of Neuroevolution options.
      * @return void
      */
-    set(options: FlappyOptions) {
+    set(options: IOptions) {
         this.options = merge({}, this.options, options)
     }
 
@@ -88,26 +77,26 @@ export class Neuroevolution {
      * @return Neural Network array for next Generation.
      */
     nextGeneration() {
-        let networks: SaveOutput[];
+        let networks: ISaveOutput[];
 
         if (this.generations.generations.length === 0) {
-            // If no Generations, create first.
-            networks = this.generations.firstGeneration();
+            // if no Generations, create first.
+            networks = this.generations.firstGeneration(this);
         } else {
             // Otherwise, create next one.
-            networks = this.generations.nextGeneration();
+            networks = this.generations.nextGeneration(this);
         }
 
-        // Create Networks from the current Generation.
-        const nns = [];
-        for (let i in networks) {
+        // create Networks from the current Generation.
+        const nns: Network[] = [];
+        networks.forEach(net => {
             const nn = new Network();
-            nn.setSave(networks[i]);
+            nn.setSave(net, this);
             nns.push(nn);
-        }
+        });
 
         if (this.options.lowHistoric) {
-            // Remove old Networks.
+            // remove old Networks.
             if (this.generations.generations.length >= 2) {
                 const genomes =
                     this.generations
@@ -120,7 +109,7 @@ export class Neuroevolution {
         }
 
         if (this.options.historic !== -1) {
-            // Remove older generations.
+            // remove older generations.
             if (this.generations.generations.length > this.options.historic + 1) {
                 this.generations.generations.splice(0,
                     this.generations.generations.length - (this.options.historic + 1));
@@ -137,7 +126,8 @@ export class Neuroevolution {
      * @param {score} Score value.
      * @return void.
      */
-    networkScore(network: Network, score: number) {
-        this.generations.addGenome(new Genome(score, network.getSave()));
+    networkScore(network: Network, score: number): void {
+        const gn = new Genome(score, network.getSave());
+        this.generations.addGenome(gn, this);
     }
 }

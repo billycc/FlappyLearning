@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@types/lodash.merge": "^4.6.3",
+    "lodash.merge": "^4.6.0"
+  },
+  "devDependencies": {
+    "tslint": "^5.8.0"
+  }
+}

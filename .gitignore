@@ -4,3 +4,4 @@ yarn.lock
 **/.vs
 **/.vscode
 !**/.vscode/tasks.json
+package-lock.json

@@ -18,7 +18,7 @@ export interface FlappyOptions {
     nbChild: number;
 }
 
-class Self {
+export class Neuroevolution {
     static readonly defaultOptions: FlappyOptions = {
         // various factors and parameters (along with default values).
         network: [1, [1], 1],    // Perceptron network structure (1 hidden layer).
@@ -36,7 +36,7 @@ class Self {
     };
 
     constructor(public options: FlappyOptions) {
-        this.options = merge({}, Self.defaultOptions, options);
+        this.options = merge({}, Neuroevolution.defaultOptions, options);
     }
 
     /**
